@@ -1,6 +1,7 @@
 .rpt2_cache
 ### Node ###
 # Logs
+.DS_Store
 logs
 *.log
 npm-debug.log*

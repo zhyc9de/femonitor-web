@@ -1,33 +1,32 @@
-import MobileDetect from "mobile-detect";
+import UA from "ua-parser-js";
 
 export interface IDeviceInfo {
-  mobile: string | null;
-  phone: string | null;
-  tablet: string | null;
+  isMobile: boolean;
+  isAndroid: boolean;
+  browser: string | undefined;
   userAgent: string;
-  isPhone: boolean;
-  isRobot: boolean;
-  version: number;
-  versionStr: string;
   screenW: number;
   screenH: number;
   dpr: number;
 }
 
+// 更换ua-parser-js，支持自定义参数
+const myBrowser = [
+  [/(xiaomiquan)\/([\w.]+)/i],
+  [/(micromessenger)\/([\w.]+)/i],
+];
+
 export function getDeviceInfo(): IDeviceInfo {
-  const md = new MobileDetect(window.navigator.userAgent);
+  const md = new UA({ browser: myBrowser });
 
   return {
-    mobile: md.mobile(),
-    phone: md.phone(),
-    tablet: md.tablet(),
-    userAgent: md.userAgent(),
-    isPhone: md.is("iPhone"),
-    isRobot: md.is("bot"),
-    version: md.version("Webkit"),
-    versionStr: md.versionStr("Build"),
+    isMobile: md.getDevice().type === "mobile",
+    isAndroid: md.getOS().name === "android",
+    browser: md.getBrowser().name,
+    userAgent: navigator.userAgent,
     dpr: window.devicePixelRatio,
     screenW: document.documentElement.clientWidth || document.body.clientWidth,
-    screenH: document.documentElement.clientHeight || document.body.clientHeight
+    screenH:
+      document.documentElement.clientHeight || document.body.clientHeight,
   };
 }

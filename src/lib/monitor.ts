@@ -11,7 +11,7 @@ import {
   BehaviorCombine,
   BehaviorObserver,
   IClickBehavior,
-  IConsoleBehavior
+  IConsoleBehavior,
 } from "./behaviorObserver";
 import { getDeviceInfo } from "./device";
 import { Reporter } from "./report";
@@ -19,7 +19,7 @@ import { TrackerEvents, IHttpReqErrorRes } from "../types";
 import { isObject, getNetworkType, getLocaleLanguage } from "./util";
 import packageJson from "../../package.json";
 import { SpaHandler } from "./spaHandler";
-import { RrwebObserver } from "./rrwebObserver";
+// import { RrwebObserver } from "./rrwebObserver";
 import { eventWithTime } from "rrweb/typings/types";
 import { IError, IUnHandleRejectionError } from "./baseErrorObserver";
 
@@ -33,7 +33,7 @@ export type ErrorCombine =
 export enum Env {
   Dev = "dev",
   Sandbox = "sandbox",
-  Production = "production"
+  Production = "production",
 }
 
 export interface IErrorOptions {
@@ -56,7 +56,7 @@ export enum ConsoleType {
   error = "error",
   warn = "warn",
   info = "info",
-  debug = "debug"
+  debug = "debug",
 }
 export interface IBehaviorOption {
   watch: boolean;
@@ -111,26 +111,26 @@ export const defaultTrackerOptions = {
     url: "",
     method: "POST",
     contentType: "application/json",
-    beforeSend: (data: ErrorCombine) => data
+    beforeSend: (data: ErrorCombine) => data,
   },
   data: {},
   error: {
     watch: true,
     random: 1,
     repeat: 5,
-    delay: 1000
+    delay: 1000,
   },
   performance: false,
   http: {
     fetch: true,
     ajax: true,
-    ignoreRules: []
+    ignoreRules: [],
   },
   behavior: {
     watch: false,
     console: [ConsoleType.error],
     click: true,
-    queueLimit: 20
+    queueLimit: 20,
   },
   /**
    * rrweb use mutation observer api, for compatibility see:
@@ -139,9 +139,9 @@ export const defaultTrackerOptions = {
   rrweb: {
     watch: false,
     queueLimit: 50,
-    delay: 1000
+    delay: 1000,
   },
-  isSpa: true
+  isSpa: true,
 };
 
 export type EventName = string | symbol;
@@ -183,9 +183,9 @@ export class Monitor {
     this.initOptions(options);
 
     this.getDeviceInfo();
-    this.getNetworkType();
-    this.getLocaleLanguage();
-    this.getUserAgent();
+    // this.getNetworkType(); 其实想要拿的是否是wifi，但其实无法拿到
+    // this.getLocaleLanguage();
+    // this.getUserAgent();
 
     this.initGlobalData();
     this.initInstances();
@@ -211,27 +211,27 @@ export class Monitor {
     const deviceInfo = getDeviceInfo();
 
     this.configData({
-      _deviceInfo: deviceInfo
+      _deviceInfo: deviceInfo,
     });
   }
 
   getNetworkType(): void {
     const networkType = getNetworkType();
     this.configData({
-      _networkType: networkType
+      _networkType: networkType,
     });
   }
 
   getLocaleLanguage(): void {
     const localeLanguage = getLocaleLanguage();
     this.configData({
-      _locale: localeLanguage
+      _locale: localeLanguage,
     });
   }
 
   getUserAgent(): void {
     this.configData({
-      _userAgent: navigator.userAgent
+      _userAgent: navigator.userAgent,
     });
   }
 
@@ -248,7 +248,7 @@ export class Monitor {
     this.configData({
       _sdkVersion: packageJson.version,
       _env: this.$options.env,
-      ...this.$options.data
+      ...this.$options.data,
     });
   }
 
@@ -264,7 +264,7 @@ export class Monitor {
     }
 
     if (this.$options.performance) {
-      this.listenPerformanceInfo();
+      // this.listenPerformanceInfo();
       this.performanceObserver = new PerformanceObserver();
       this.performanceObserver.init();
     }
@@ -285,9 +285,10 @@ export class Monitor {
       this.behaviorObserver.init();
     }
 
+    // 自用不开启，就先注释了
     if (this.$options.rrweb.watch) {
-      this.listenMouseTrack();
-      new RrwebObserver().init();
+      // this.listenMouseTrack();
+      // new RrwebObserver().init();
     }
 
     if (this.$options.isSpa) {
@@ -295,7 +296,7 @@ export class Monitor {
       myEmitter.on("_spaHashChange", (...rest) => {
         const [, , url] = rest;
         this.configData({
-          _spaUrl: url
+          _spaUrl: url,
         });
       });
     }
@@ -370,7 +371,7 @@ export class Monitor {
       } else {
         this.$data = {
           ...this.$data,
-          ...(value as PlainObject)
+          ...(value as PlainObject),
         };
       }
     }
@@ -385,7 +386,7 @@ export class Monitor {
     value: ITrackerOptions[keyof ITrackerOptions]
   ): void {
     this.$options = merge(this.$options, {
-      [key]: value
+      [key]: value,
     });
   }
 
@@ -398,7 +399,7 @@ export class Monitor {
       }
 
       myEmitter.emitWithGlobalData(TrackerEvents.batchErrors, {
-        errorList: this.errorQueue
+        errorList: this.errorQueue,
       });
 
       this.errorQueueTimer = null;
@@ -412,7 +413,7 @@ export class Monitor {
       TrackerEvents.vuejsError,
       TrackerEvents.unHandleRejection,
       TrackerEvents.resourceError,
-      TrackerEvents.reqError
+      TrackerEvents.reqError,
     ];
 
     errorEvents.forEach((eventName) => {

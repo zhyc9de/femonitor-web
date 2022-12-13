@@ -13,9 +13,10 @@ export interface IConsoleBehavior {
 
 export interface IClickBehavior {
   type: "click";
-  eleClass: string;
+  // eleClass: string;
   classPath: string;
-  xpath: string;
+  text: string;
+  // xpath: string;
   screenX: number;
   screenY: number;
 }
@@ -55,7 +56,7 @@ export class BehaviorObserver {
         const consoleBehavior: IConsoleBehavior = {
           type: "console",
           level: type,
-          msg: stringify(msg)
+          msg: stringify(msg),
         };
 
         // Prevent catch console behavior inside eventEmitter event handlers
@@ -72,16 +73,17 @@ export class BehaviorObserver {
     const target = e.target;
 
     if (target instanceof HTMLElement) {
-      const eleClass = target.className;
+      // const eleClass = target.className;
       const classPath = this.getElePath(target);
-      const xpath = this.getXPathFromElement(target);
+      // const xpath = this.getXPathFromElement(target);
       const clickBehavior: IClickBehavior = {
         type: "click",
-        eleClass,
+        // eleClass,
         classPath,
-        xpath,
+        text: target.innerText.substring(0, 50),
+        // xpath,
         screenX: e.screenX,
-        screenY: e.screenY
+        screenY: e.screenY,
       };
 
       myEmitter.emit(TrackerEvents._clickEle, clickBehavior);
@@ -118,20 +120,22 @@ export class BehaviorObserver {
   private getElePath(node: HTMLElement, maxDeepLen = 5): string {
     if (!node || 1 !== node.nodeType) return "";
     const ret = [];
-    let deepLength = 0, 
-      elm = "";       
+    let deepLength = 0,
+      elm = "";
 
-    ret.push(`(${node.innerText.substr(0, 50)})`);
+    // ret.push(`(${node.innerText.substr(0, 50)})`);
     for (
       let t: any = node || null;
-      t && deepLength++ < maxDeepLen && !("html" === (elm = this.normalTarget(t)));
+      t &&
+      deepLength++ < maxDeepLen &&
+      !("html" === (elm = this.normalTarget(t)));
 
     ) {
       ret.push(elm), (t = t.parentNode);
     }
     return ret.reverse().join(" > ");
   }
-  
+
   private getXPathFromElement(elm: any): string {
     const allNodes = document.getElementsByTagName("*");
     const segs = [];
