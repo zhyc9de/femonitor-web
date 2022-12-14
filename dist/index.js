@@ -1351,13 +1351,16 @@ class MyEmitter extends events.EventEmitter {
     // Emit an event with decorated data
     emitWithGlobalData(event, ...args) {
         const [data, ...rest] = args;
-        return this.customEmit(event, Object.assign(Object.assign({}, data), { beforeEmit: (data) => {
-                this.decorateData(data);
+        return this.customEmit(event, Object.assign(Object.assign({}, data), { beforeEmit: (dataset) => {
+                this.decorateData(dataset);
             } }), ...rest);
     }
-    decorateData(data) {
-        data.time = Date.now();
-        data.globalData = this.globalData;
+    decorateData(dataset) {
+        const data = {
+            time: Date.now(),
+            globalData: this.globalData,
+            dataset, // 将数据放到dataset
+        };
         if (!data.title) {
             data.title = document.title;
         }

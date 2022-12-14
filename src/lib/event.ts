@@ -33,18 +33,20 @@ export class MyEmitter extends EventEmitter {
       event,
       {
         ...data,
-        beforeEmit: (data: any) => {
-          this.decorateData(data);
-        }
+        beforeEmit: (dataset: any) => {
+          this.decorateData(dataset);
+        },
       },
       ...rest
     );
   }
 
-  private decorateData(data: any) {
-    data.time = Date.now();
-    data.globalData = this.globalData;
-
+  private decorateData(dataset: any) {
+    const data: any = {
+      time: Date.now(),
+      globalData: this.globalData,
+      dataset, // 将数据放到dataset
+    };
     if (!data.title) {
       data.title = document.title;
     }
