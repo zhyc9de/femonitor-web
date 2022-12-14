@@ -18,7 +18,8 @@ export class MyEmitter extends EventEmitter {
     }
 
     if (typeof data.beforeEmit === "function") {
-      data.beforeEmit.call(this, data);
+      const global = data.beforeEmit.call(this, data);
+      Object.assign(data, global);
       Reflect.deleteProperty(data, "beforeEmit");
     }
 
@@ -32,9 +33,9 @@ export class MyEmitter extends EventEmitter {
     return this.customEmit(
       event,
       {
-        ...data,
+        dataset: data, // 将数据放到dataset
         beforeEmit: (dataset: any) => {
-          this.decorateData(dataset);
+          return this.decorateData(dataset);
         },
       },
       ...rest
@@ -45,7 +46,6 @@ export class MyEmitter extends EventEmitter {
     const data: any = {
       time: Date.now(),
       globalData: this.globalData,
-      dataset, // 将数据放到dataset
     };
     if (!data.title) {
       data.title = document.title;
@@ -69,6 +69,8 @@ export class MyEmitter extends EventEmitter {
     if (!data.userLabel) {
       data.userLabel = getUserSessionLabel();
     }
+
+    return data;
   }
 
   init() {

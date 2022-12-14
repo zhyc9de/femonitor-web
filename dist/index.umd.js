@@ -1348,7 +1348,8 @@
 	            return super.emit(event, ...args);
 	        }
 	        if (typeof data.beforeEmit === "function") {
-	            data.beforeEmit.call(this, data);
+	            const global = data.beforeEmit.call(this, data);
+	            Object.assign(data, global);
 	            Reflect.deleteProperty(data, "beforeEmit");
 	        }
 	        super.emit(exports.TrackerEvents.event, event, data, ...rest);
@@ -1357,15 +1358,17 @@
 	    // Emit an event with decorated data
 	    emitWithGlobalData(event, ...args) {
 	        const [data, ...rest] = args;
-	        return this.customEmit(event, Object.assign(Object.assign({}, data), { beforeEmit: (dataset) => {
-	                this.decorateData(dataset);
-	            } }), ...rest);
+	        return this.customEmit(event, {
+	            dataset: data,
+	            beforeEmit: (dataset) => {
+	                return this.decorateData(dataset);
+	            },
+	        }, ...rest);
 	    }
 	    decorateData(dataset) {
 	        const data = {
 	            time: Date.now(),
 	            globalData: this.globalData,
-	            dataset, // 将数据放到dataset
 	        };
 	        if (!data.title) {
 	            data.title = document.title;
@@ -1385,6 +1388,7 @@
 	        if (!data.userLabel) {
 	            data.userLabel = getUserSessionLabel();
 	        }
+	        return data;
 	    }
 	    init() {
 	        this.globalData = {};
